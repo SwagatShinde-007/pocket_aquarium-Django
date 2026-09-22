@@ -1,3 +1,4 @@
+
 # Pocket Aquarium
 
 A small Django project with an animated fish tank. Every fish lives in the
@@ -7,7 +8,7 @@ you feed it.
 ## Run it
 
 ```bash
-# 1. (optional) create a virtual environment
+# 1.  create a virtual environment
 python -m venv .venv
 source .venv/bin/activate        # Windows: .venv\Scripts\activate
 
@@ -23,8 +24,6 @@ python manage.py runserver
 
 Open http://127.0.0.1:8000/
 
-Optional: `python manage.py createsuperuser` and visit `/admin/` to edit fish.
-Run the tests with `python manage.py test`.
 
 ## What to try
 
@@ -47,8 +46,15 @@ offset from the database as CSS variables (`--dur`, `--top`, `--delay`). The
 fish flips at each edge with a second animation that runs in step with the swim.
 Animations calm down automatically for people who prefer reduced motion.
 
-## Ideas to extend it
+Push to GitHub
 
-- Add a `species` field with different fish shapes.
-- Let fish get hungry over time (compare `now` to a `last_fed` timestamp).
-- Add user accounts so each person has their own tank.
+git init
+
+git add . or  git add FileName.py 
+
+git commit -m "Pocket_Aquarium Added"
+
+git push origin main
+
+Team Members : 1.Swagat Shinde 
+               2.Vedant Biradar
