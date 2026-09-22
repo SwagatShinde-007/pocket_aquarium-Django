@@ -1,0 +1,114 @@
+ python manage.py migrate{% load static %}<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="csrf-token" content="{{ csrf_token }}">
+  <title>Pocket Aquarium</title>
+  <link rel="stylesheet" href="{% static 'tank/style.css' %}">
+</head>
+<body>
+
+  <!-- ===== The tank (all decoration is aria-hidden; it's just water) ===== -->
+  <main class="tank" id="tank">
+    <div class="rays" aria-hidden="true"></div>
+    <div class="rays rays--slow" aria-hidden="true"></div>
+
+    <svg class="waves" viewBox="0 0 1200 60" preserveAspectRatio="none" aria-hidden="true">
+      <path class="wave wave--back" d="M0 30 Q 100 5 200 30 T 400 30 T 600 30 T 800 30 T 1000 30 T 1200 30 V60 H0Z"/>
+      <path class="wave wave--front" d="M0 36 Q 100 12 200 36 T 400 36 T 600 36 T 800 36 T 1000 36 T 1200 36 V60 H0Z"/>
+    </svg>
+
+    <div class="bubbles" id="bubbles" aria-hidden="true"></div>
+
+    {% for fish in fish_list %}
+    <div class="swimmer" data-id="{{ fish.id }}"
+         style="--top: {{ fish.depth }}%; --dur: {{ fish.speed }}s; --delay: {{ fish.delay }}s; --w: {{ fish.display_size }}px;">
+      <button class="fish" type="button" data-feed-url="{% url 'tank:feed' fish.id %}"
+              aria-label="Feed {{ fish.name }}" style="--c: {{ fish.color }};">
+        <span class="flipper">
+          <svg viewBox="0 0 120 64" aria-hidden="true">
+            <path class="tail" d="M28 32 L2 10 Q10 32 2 54 Z"/>
+            <path class="fin fin--top" d="M52 14 Q70 -4 84 14 Z"/>
+            <ellipse class="body" cx="66" cy="32" rx="44" ry="24"/>
+            <path class="belly" d="M30 38 Q66 62 104 38 Q66 52 30 38Z"/>
+            <path class="fin fin--side" d="M58 36 Q72 54 82 40 Z"/>
+            <circle cx="92" cy="27" r="6.5" fill="#fff"/>
+            <circle class="pupil" cx="94" cy="27" r="3" fill="#06202c"/>
+            <path d="M104 40 Q109 42 112 38" stroke="#06202c" stroke-width="2" fill="none" stroke-linecap="round" opacity=".55"/>
+          </svg>
+        </span>
+        <span class="tag"><b class="tag__name">{{ fish.name }}</b> <i class="tag__level">{{ fish.level }}</i></span>
+      </button>
+    </div>
+    {% empty %}
+    <p class="empty">The tank is empty. Add your first fish from the panel.</p>
+    {% endfor %}
+
+    <div class="floor" aria-hidden="true">
+      <svg class="weed weed--1" viewBox="0 0 40 140"><path d="M20 140 C 4 110, 36 90, 20 62 S 4 20, 20 0"/></svg>
+      <svg class="weed weed--2" viewBox="0 0 40 140"><path d="M20 140 C 36 106, 6 84, 22 56 S 34 18, 18 0"/></svg>
+      <svg class="weed weed--3" viewBox="0 0 40 140"><path d="M20 140 C 6 112, 34 86, 20 60 S 8 22, 22 0"/></svg>
+      <svg class="weed weed--4" viewBox="0 0 40 140"><path d="M20 140 C 34 108, 8 88, 20 58 S 32 20, 20 0"/></svg>
+      <div class="sand"></div>
+    </div>
+  </main>
+
+  <!-- ===== Control panel ===== -->
+  <aside class="panel" id="panel">
+    <header class="panel__head">
+      <h1>Pocket Aquarium</h1>
+      <button class="panel__toggle" id="panelToggle" type="button" aria-expanded="true" aria-controls="panelBody">Hide</button>
+    </header>
+
+    <div class="panel__body" id="panelBody">
+      <p class="stats">
+        <span><b id="fishCount">{{ fish_list|length }}</b> fish</span>
+        <span><b id="mealCount">{{ total_meals }}</b> meals served</span>
+      </p>
+      <p class="hint">Click a fish to feed it. Fed fish grow.</p>
+
+      <form method="post" class="add" autocomplete="off">
+        {% csrf_token %}
+        <label class="field">
+          <span>Name</span>
+          {{ form.name }}
+          {% for e in form.name.errors %}<em class="err">{{ e }}</em>{% endfor %}
+        </label>
+        <div class="field field--row">
+          <label class="field">
+            <span>Colour</span>
+            {{ form.color }}
+          </label>
+          <label class="field field--grow">
+            <span>Size</span>
+            {{ form.size }}
+          </label>
+        </div>
+        <label class="field">
+          <span>Swim speed <small>(slow &larr; &rarr; fast)</small></span>
+          <input type="range" id="speedUi" min="6" max="40" step="1" value="24">
+          <input type="hidden" name="speed" id="speedReal" value="{{ form.speed.value|default:16 }}">
+        </label>
+        {% for e in form.non_field_errors %}<em class="err">{{ e }}</em>{% endfor %}
+        <button class="btn" type="submit">Add fish</button>
+      </form>
+
+      {% if fish_list %}
+      <ul class="roster" id="roster">
+        {% for fish in fish_list %}
+        <li data-id="{{ fish.id }}" data-meals="{{ fish.meals }}">
+          <span class="dot" style="background: {{ fish.color }}"></span>
+          <span class="roster__name">{{ fish.name }}</span>
+          <span class="roster__level">{{ fish.level }}</span>
+          <button type="button" class="release" data-release-url="{% url 'tank:release' fish.id %}" aria-label="Release {{ fish.name }}">Release</button>
+        </li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+    </div>
+  </aside>
+
+  <script src="{% static 'tank/app.js' %}"></script>
+</body>
+</html>
